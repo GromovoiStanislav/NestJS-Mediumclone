@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UserEntity } from './user.entity';
 import { sign } from 'jsonwebtoken';
-import { JWT_SECRET } from '@app/config';
+import { JWT_SECRET } from '../config';
 import { UserResponseInterface } from './types/userResponse.interface';
 import { LoginUserDto } from './dto/loginUser.dto';
 import { compare } from 'bcrypt';
@@ -17,10 +17,10 @@ export class UserService {
   ) {}
   async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
     const userByEmail = await this.userRepository.findOne({
-      email: createUserDto.email,
+      where: { email: createUserDto.email },
     });
     const userByUsername = await this.userRepository.findOne({
-      username: createUserDto.username,
+      where: { username: createUserDto.username },
     });
     if (userByEmail || userByUsername) {
       throw new HttpException(
@@ -35,10 +35,10 @@ export class UserService {
   }
 
   async login(loginUserDto: LoginUserDto): Promise<UserEntity> {
-    const user = await this.userRepository.findOne(
-      {email: loginUserDto.email},
-      { select: ['id', 'username', 'email', 'bio', 'image', 'password'] },
-    );
+    const user = await this.userRepository.findOne({
+      where: { email: loginUserDto.email },
+      select: ['id', 'username', 'email', 'bio', 'image', 'password'],
+    });
 
     if (!user) {
       throw new HttpException(

@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
+  Req,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -36,9 +38,8 @@ export class UserController {
 
   @Get('user')
   async currentUser(
-      @Req() request: ExpressRequest,
+    @Req() request: ExpressRequest,
   ): Promise<UserResponseInterface> {
     return this.userService.buildUserResponse(request.user);
   }
-
 }

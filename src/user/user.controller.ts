@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller,
+  Controller, Get,
   Post,
   UsePipes,
   ValidationPipe,
@@ -9,7 +9,8 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UserResponseInterface } from './types/userResponse.interface';
 import { LoginUserDto } from './dto/loginUser.dto';
-import { ExpressRequest } from '../types/expressRequest.interface';
+import { User } from './decorators/user.decorator';
+import { UserEntity } from './user.entity';
 
 @Controller()
 export class UserController {
@@ -35,10 +36,8 @@ export class UserController {
   }
 
   @Get('user')
-  async currentUser(
-      @Req() request: ExpressRequest,
-  ): Promise<UserResponseInterface> {
-    return this.userService.buildUserResponse(request.user);
+  async currentUser(@User() user: UserEntity): Promise<UserResponseInterface> {
+    return this.userService.buildUserResponse(user);
   }
 
 }

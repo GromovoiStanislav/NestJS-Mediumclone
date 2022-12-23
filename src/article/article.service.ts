@@ -32,6 +32,20 @@ export class ArticleService {
             queryBuilder.andWhere('articles.authorId = :id', {id: author.id,});
         }
 
+        if (query.favorited) {
+            const author = await this.userRepository.findOne({
+                where: {username: query.favorited},
+                relations: ['favorites']
+            });
+            const ids = author.favorites.map((el) => el.id);
+
+            if (ids.length > 0) {
+                queryBuilder.andWhere('articles.authorId IN (:...ids)', {ids});
+            } else {
+                queryBuilder.andWhere('1=0');
+            }
+        }
+
         queryBuilder.orderBy('articles.createdAt', 'DESC');
 
         const articlesCount = await queryBuilder.getCount();
@@ -44,9 +58,23 @@ export class ArticleService {
             queryBuilder.offset(query.offset);
         }
 
-        const articles = await queryBuilder.getMany();
+        let favoriteIds: number[] = [];
+        if (currentUserId) {
+            const currentUser = await this.userRepository.findOne({
+                where: {id: currentUserId},
+                relations: ['favorites']
+            });
+            favoriteIds = currentUser.favorites.map((favorite) => favorite.id);
+        }
 
-        return {articles, articlesCount};
+
+        const articles = await queryBuilder.getMany();
+        const articlesWithFavorited = articles.map((article) => {
+            const favorited = favoriteIds.includes(article.id);
+            return { ...article, favorited };
+        });
+
+        return { articles: articlesWithFavorited, articlesCount };
     }
 
 
@@ -104,7 +132,7 @@ export class ArticleService {
 
     async addArticleToFavorites(slug: string, userId: number,): Promise<ArticleEntity> {
         const article = await this.findBySlug(slug);
-        const user = await this.userRepository.findOne({where: {id:userId}, relations: ['favorites']});
+        const user = await this.userRepository.findOne({where: {id: userId}, relations: ['favorites']});
 
         const isNotFavorited = user.favorites.findIndex((articleInFavorites) => articleInFavorites.id === article.id) === -1;
 
@@ -121,7 +149,7 @@ export class ArticleService {
 
     async deleteArticleFromFavorites(slug: string, userId: number): Promise<ArticleEntity> {
         const article = await this.findBySlug(slug);
-        const user = await this.userRepository.findOne({where: {id:userId}, relations: ['favorites']});
+        const user = await this.userRepository.findOne({where: {id: userId}, relations: ['favorites']});
 
         const articleIndex = user.favorites.findIndex((articleInFavorites) => articleInFavorites.id === article.id);
 
@@ -134,10 +162,6 @@ export class ArticleService {
 
         return article;
     }
-
-
-
-
 
 
     buildArticleResponse(article: ArticleEntity): ArticleResponseInterface {

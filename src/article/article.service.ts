@@ -1,13 +1,12 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
-import {DeleteResult, getRepository, Repository} from "typeorm";
+import {DeleteResult, Repository} from "typeorm";
 import {ArticleEntity} from "./article.entity";
 import {UserEntity} from "../user/user.entity";
 import {CreateArticleDto} from "./dto/createArticle.dto";
 import {ArticleResponseInterface} from "./types/articleResponse.interface";
 import slugify from 'slugify';
 import {ArticlesResponseInterface} from "./types/articlesResponse.interface";
-import dataSource from "../data-source";
 import {FollowEntity} from "../profile/follow.entity";
 
 @Injectable()
@@ -21,7 +20,7 @@ export class ArticleService {
 
 
     async findAll(currentUserId: number, query: any): Promise<ArticlesResponseInterface> {
-        const queryBuilder = dataSource.getRepository(ArticleEntity)
+        const queryBuilder = this.articleRepository
             .createQueryBuilder('articles')
             .leftJoinAndSelect('articles.author', 'author');
 
@@ -89,7 +88,7 @@ export class ArticleService {
 
         const followingUserIds = follows.map((follow) => follow.followingId);
 
-        const queryBuilder = getRepository(ArticleEntity)
+        const queryBuilder = this.articleRepository
             .createQueryBuilder('articles')
             .leftJoinAndSelect('articles.author', 'author')
             .where('articles.authorId IN (:...ids)', { ids: followingUserIds });

@@ -43,17 +43,24 @@ export class UserService {
             throw new HttpException(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY,);
         }
 
-        const newUser = new UserEntity();
-        Object.assign(newUser, createUserDto);
-        console.log('newUser', newUser);
+        // const newUser = new UserEntity();
+        // Object.assign(newUser, createUserDto);
+        const newUser = this.userRepository.create(createUserDto)
         return await this.userRepository.save(newUser);
     }
 
 
     async updateUser(userId: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-        const user = await this.findById(userId);
-        Object.assign(user, updateUserDto);
+        // const user = await this.findById(userId);
+        // Object.assign(user, updateUserDto);
+        const user = await this.userRepository.preload({id: userId, ...updateUserDto})
         return await this.userRepository.save(user);
+    }
+
+
+    async removeUser(id: number): Promise<UserEntity>{
+        const user = await this.userRepository.findOneBy({id});
+        return this.userRepository.remove(user)
     }
 
 

@@ -1,14 +1,28 @@
-import { ConnectionOptions } from 'typeorm';
-const config: ConnectionOptions = {
-  type: 'postgres',
-  host: 'localhost',
+import { DataSource } from "typeorm";
+import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
+
+export const ormconfig: PostgresConnectionOptions = {
+  type: "postgres",
+  host: "localhost",
   port: 5432,
-  username: 'myuser',
-  password: '123',
-  database: 'mediumclone',
-  entities: [__dirname + '/**/*.entity{.ts,.js}'],
+  username: "postgres",
+  password: "root",
+  database: "mediumclone",
   synchronize: false,
-  migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
+  entities: [__dirname + "/**/*.entity{.ts,.js}"],
+  migrations: [__dirname + "/migrations/**/*{.ts,.js}"],
 };
 
-export default config;
+const dataSource = new DataSource({
+  ...ormconfig,
+});
+
+dataSource.initialize()
+  .then(() => {
+    console.log("Data Source has been initialized!");
+  })
+  .catch((err) => {
+    console.error("Error during Data Source initialization", err);
+  });
+
+export default dataSource;

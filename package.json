@@ -23,11 +23,8 @@
     "db:drop": "yarn typeorm schema:drop -d ./src/ormconfig.ts",
     "db:create": "yarn typeorm migration:create ./src/migrations/new",
     "db:generate": "yarn typeorm migration:generate ./src/migrations/new -d ./src/ormconfig.ts",
-    "db:run": "yarn typeorm migration:run -d ./src/ormconfig.ts",
-    "typeorm_": "ts-node ./node_modules/typeorm/cli.js --dataSource=src/ormconfig.ts",
-    "db:drop_": "NODE_PATH=./src yarn typeorm_ schema:drop",
-    "db:create_": "NODE_PATH=./src yarn typeorm_ migration:generate",
-    "db:migrate_": "NODE_PATH=./src yarn typeorm_ migration:run"
+    "db:run": "yarn typeorm migration:run -d ./src/ormconfig.ts"
+
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",

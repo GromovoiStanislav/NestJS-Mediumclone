@@ -24,7 +24,6 @@
     "db:create": "yarn typeorm migration:create ./src/migrations/new",
     "db:generate": "yarn typeorm migration:generate ./src/migrations/new -d ./src/ormconfig.ts",
     "db:run": "yarn typeorm migration:run -d ./src/ormconfig.ts"
-
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
